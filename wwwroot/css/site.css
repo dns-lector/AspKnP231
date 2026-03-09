@@ -33,3 +33,8 @@ body {
 .header-icon {
     font-size: larger;
 }
+
+.header-icon-big {
+    font-size: x-large;
+    line-height: 1.2;
+}
