@@ -17,6 +17,9 @@ namespace AspKnP231.Controllers
 
         public IActionResult IoC()
         {
+            // використовуємо сервіс і передаємо дані до представлення
+            ViewData["hash"] = _hashService.Digest("123");
+            ViewData["hashCode"] = _hashService.GetHashCode();
             return View();
         }
 
@@ -73,3 +76,11 @@ namespace AspKnP231.Controllers
         }
     }
 }
+/* Д.З. Створити сервіс дати-часу з двома методами
+ * GetDate
+ * GetTime
+ * Реалізувати, інжектувати, вивести результати роботи
+ * Створити варіації
+ * SqlDateTimeService - 2026-08-19  10:00:01.134
+ * NationalDateTimeService - 19.08.2026  10:00:01
+ */

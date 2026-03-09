@@ -4,7 +4,12 @@
     {
         public static IServiceCollection AddHash(this IServiceCollection services)
         {
-            return services.AddSingleton<IHashService, Md5HashService>();
+            // return services.AddSingleton<IHashService, Md5HashService>();
+            // ілюстрація переходу на новий хеш
+            // return services.AddSingleton<IHashService, ShaHashService>();
+
+            // return services.AddTransient<IHashService, ShaHashService>();
+            return services.AddScoped<IHashService, ShaHashService>();
         }
     }
 }
