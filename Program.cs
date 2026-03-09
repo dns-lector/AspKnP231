@@ -1,7 +1,13 @@
+using AspKnP231.Services.Hash;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Реєструємо співставлення інтерфейсу та класу-сервісу у контейнері
+// "якщо буде запит на інжекцію IHashService, то слід видати об'єкт Md5HashService"
+builder.Services.AddSingleton<IHashService, Md5HashService>();
 
 var app = builder.Build();
 
