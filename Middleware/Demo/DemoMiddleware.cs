@@ -1,4 +1,4 @@
-﻿using AspKnP231.Services.Hash;
+using AspKnP231.Services.Hash;
 
 namespace AspKnP231.Middleware.Demo
 {
