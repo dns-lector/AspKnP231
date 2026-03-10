@@ -6,4 +6,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <EditorConfigFiles Remove="C:\Users\samoylenko_d\source\repos\AspKnP231\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="C:\Users\samoylenko_d\source\repos\AspKnP231\.editorconfig" />
+  </ItemGroup>
+
 </Project>

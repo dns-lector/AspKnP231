@@ -15,6 +15,11 @@ namespace AspKnP231.Controllers
             _hashService = hashService;                       // 
         }
 
+        public IActionResult Middleware()
+        {
+            return View();
+        }
+
         public IActionResult IoC()
         {
             // використовуємо сервіс і передаємо дані до представлення

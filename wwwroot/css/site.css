@@ -38,3 +38,6 @@ body {
     font-size: x-large;
     line-height: 1.2;
 }
+.bi-rot-90::before {
+    transform: rotate(90deg);
+}
