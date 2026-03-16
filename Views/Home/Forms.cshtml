@@ -41,7 +41,7 @@
         <div class="col">
             <div class="input-group mb-3">
                 @{
-                    fieldName = "user-email";
+                    fieldName = "user-name";
                     isInvalid = Model.FormModelState?.Keys.Contains(fieldName) ?? false;
                     validationClass = Model.FormModelState == null ? "" : isInvalid ? "is-invalid" : "is-valid";
                     errorMessages = isInvalid
@@ -50,6 +50,7 @@
                 }
                 <span class="input-group-text" id="user-name-addon"><i class="bi bi-person"></i></span>
                 <input type="text" class="form-control @validationClass" name="@fieldName"
+                       value="@Model.FormModel?.UserName"
                        placeholder="Name" aria-label="Name" aria-describedby="user-name-addon" />
                 <div class="invalid-feedback">
                     @errorMessages
@@ -68,6 +69,7 @@
                 }
                 <span class="input-group-text" id="user-email-addon"><i class="bi bi-envelope-at"></i></span>
                 <input type="email" class="form-control @validationClass" name="@fieldName"
+                       value="@Model.FormModel?.UserEmail"
                        placeholder="E-mail" aria-label="E-mail" aria-describedby="user-email-addon" />                
                 <div class="invalid-feedback">
                     @errorMessages
@@ -89,6 +91,7 @@
                 }
                 <span class="input-group-text" id="user-login-addon"><i class="bi bi-key"></i></span>
                 <input type="text" class="form-control @validationClass" name="@fieldName"
+                       value="@Model.FormModel?.UserLogin"
                        placeholder="Login" aria-label="Login" aria-describedby="user-login-addon" />
                 <div class="invalid-feedback">
                     @errorMessages
@@ -107,6 +110,7 @@
                 }
                 <span class="input-group-text" id="user-birthdate-addon"><i class="bi bi-cake"></i></span>
                 <input type="date" class="form-control @validationClass" name="@fieldName"
+                       value="@Model.FormModel?.UserBirthdate?.ToString("yyyy-MM-dd")"
                        placeholder="Birthdate" aria-label="Password" aria-describedby="user-birthdate-addon" />
                 <div class="invalid-feedback">
                     @errorMessages
@@ -128,6 +132,7 @@
                 }
                 <span class="input-group-text" id="user-password-addon"><i class="bi bi-lock"></i></span>
                 <input type="password" class="form-control @validationClass" name="@fieldName"
+                       value="@Model.FormModel?.UserPassword"
                        placeholder="Password" aria-label="Password" aria-describedby="user-password-addon" />
                 <div class="invalid-feedback">
                     @errorMessages
@@ -146,6 +151,7 @@
                 }
                 <span class="input-group-text" id="user-repeat-addon"><i class="bi bi-unlock"></i></span>
                 <input type="password" class="form-control @validationClass" name="@fieldName"
+                       value="@Model.FormModel?.UserRepeat"
                        placeholder="Repeat" aria-label="Login" aria-describedby="user-repeat-addon" />
                 <div class="invalid-feedback">
                     @errorMessages

@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text.Json;
+using AspKnP231.Data;
 using AspKnP231.Models;
 using AspKnP231.Models.Home;
 using AspKnP231.Services.Hash;
@@ -11,13 +12,15 @@ namespace AspKnP231.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly DataContext _dataContext;
         private readonly ScopedService _scopedService;
         private readonly IHashService _hashService;           // Інжекція сервісу "через конструктор" -
                                                               // рекомендований спосіб, передбачає 
-        public HomeController(IHashService hashService, ScopedService scopedService)      
+        public HomeController(IHashService hashService, ScopedService scopedService, DataContext dataContext)
         {                                                     // readonly поле - посилання на сервіс та 
             _hashService = hashService;                       // параметр(и) конструктора того ж типу даних
             _scopedService = scopedService;
+            _dataContext = dataContext;
         }
 
         public IActionResult Forms()
@@ -58,10 +61,23 @@ namespace AspKnP231.Controllers
         public IActionResult FormReceiver(HomeFormsFormModel formModel)
         {
             // валідація форми - знаходиться у ModelState
+            // додатково до неї проводимо перевірки, що не зазначаються атрибутами моделі
+            if(_dataContext.UserAccesses.Any(ua => ua.Login == formModel.UserLogin))
+            {
+                ModelState.AddModelError("user-login", "Даний логін вже у вжитку");
+            }
+            /* Реалізувати перевірку пароля на надійність:
+             * - довжина щонайменше 6 символів
+             * - містить принаймні одну цифру
+             * - містить принаймні одну маленьку літеру
+             * - містить принаймні одну велику літеру
+             * - містить принаймні один спецсимвол (не-літера, не-цифра)
+             */
+
             HttpContext.Session.SetString(
                 nameof(ModelState),
                 JsonSerializer.Serialize(ModelState)
-            ); 
+            );
 
             HttpContext.Session.SetString(
                 nameof(HomeFormsFormModel),
