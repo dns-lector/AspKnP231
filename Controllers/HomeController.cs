@@ -5,6 +5,7 @@ using AspKnP231.Models.Home;
 using AspKnP231.Services.Hash;
 using AspKnP231.Services.Scoped;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace AspKnP231.Controllers
 {
@@ -28,7 +29,26 @@ namespace AspKnP231.Controllers
                 viewModel.FormModel = JsonSerializer.Deserialize<HomeFormsFormModel>(
                     HttpContext.Session.GetString(nameof(HomeFormsFormModel))!
                 );
+                ModelStateDictionary modelState = new();
+
+                JsonElement savedState = JsonSerializer.Deserialize<JsonElement>(
+                    HttpContext.Session.GetString(nameof(ModelState))!
+                )!;
+                foreach (var item in savedState.EnumerateObject())
+                {
+                    var errors = item.Value.GetProperty("Errors");
+                    if(errors.GetArrayLength() > 0)
+                    {
+                        foreach(var err in errors.EnumerateArray())
+                        {
+                            modelState.AddModelError(item.Name, err.GetProperty("ErrorMessage").GetString()!);
+                        }
+                    }
+                }
+                viewModel.FormModelState = modelState;
+
                 HttpContext.Session.Remove(nameof(HomeFormsFormModel));
+                HttpContext.Session.Remove(nameof(ModelState));
             }
 
             return View(viewModel);
@@ -37,6 +57,12 @@ namespace AspKnP231.Controllers
         // метод для прийому даних форми, збереження у сесії та передачі редирект
         public IActionResult FormReceiver(HomeFormsFormModel formModel)
         {
+            // валідація форми - знаходиться у ModelState
+            HttpContext.Session.SetString(
+                nameof(ModelState),
+                JsonSerializer.Serialize(ModelState)
+            ); 
+
             HttpContext.Session.SetString(
                 nameof(HomeFormsFormModel),
                 JsonSerializer.Serialize(formModel)
