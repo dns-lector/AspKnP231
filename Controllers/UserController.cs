@@ -1,10 +1,14 @@
 ﻿using AspKnP231.Data;
+using AspKnP231.Data.Entities;
 using AspKnP231.Models.Home;
 using AspKnP231.Models.User;
 using AspKnP231.Services.Kdf;
 using AspKnP231.Services.Storage;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.EntityFrameworkCore;
+using System.Buffers.Text;
+using System.Text;
 using System.Text.Json;
 
 namespace AspKnP231.Controllers
@@ -124,6 +128,83 @@ namespace AspKnP231.Controllers
                 JsonSerializer.Serialize(formModel)
             );
             return RedirectToAction(nameof(SignUp));
+        }
+
+        [HttpGet]
+        public JsonResult SignIn()
+        {
+            // Basic authentication
+            String authHeader = Request.Headers.Authorization.ToString();
+            if (String.IsNullOrEmpty(authHeader))
+            {
+                return Json(new
+                {
+                    status = 401,
+                    data = "Missing 'Authorization' header"
+                });
+            }
+            String scheme = "Basic ";
+            if (!authHeader.StartsWith(scheme))
+            {
+                return Json(new
+                {
+                    status = 401,
+                    data = "Invalid 'Authorization' scheme. Must be " + scheme
+                });
+            }
+            String basicCredentials = authHeader[scheme.Length..];
+            String userPass;
+            try
+            {
+                userPass = Encoding.UTF8.GetString(
+                Convert.FromBase64String(basicCredentials));
+            }
+            catch(Exception ex)
+            {
+                return Json(new
+                {
+                    status = 401,
+                    data = "Credentials decode error " + ex.Message
+                });
+            }
+            String[] parts = userPass.Split(':', 2);
+            if(parts.Length != 2)
+            {
+                return Json(new
+                {
+                    status = 401,
+                    data = "user-pass invalid format. Missing ':'? "
+                });
+            }
+
+            UserAccess? userAccess = _dataContext
+                .UserAccesses
+                .Include(u => u.UserData)
+                .FirstOrDefault(u => u.Login == parts[0]);
+
+            if(userAccess == null)
+            {
+                return Json(new
+                {
+                    status = 401,
+                    data = "Authentication rejected"
+                });
+            }
+
+            if(_kdfService.Dk(userAccess.Salt, parts[1]) != userAccess.Dk)
+            {
+                return Json(new
+                {
+                    status = 401,
+                    data = "Authentication rejected."
+                });
+            }
+            return Json(new
+            {
+                status = 200,
+                // data = userAccess.UserData   // Object Cycle
+                data = userAccess.UserData.Name
+            });
         }
     }
 }
