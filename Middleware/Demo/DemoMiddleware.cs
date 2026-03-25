@@ -29,6 +29,10 @@ namespace AspKnP231.Middleware.Demo
             context.Items.Add("FromDemoMiddleware", hashService.GetHashCode());
             context.Items.Add("MiddlewareScopedHash", scopedService.GetHashCode());
 
+            // context.Response.Headers.Append(
+            //     "Access-Control-Allow-Origin", 
+            //     "http://localhost:5174"
+            // );
             // Call the next delegate/middleware in the pipeline.
             await _next(context);
 

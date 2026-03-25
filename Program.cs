@@ -37,7 +37,10 @@ builder.Services.AddDbContext<DataContext>(options =>
 
 builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy =>
-        policy.AllowAnyOrigin()    
+       policy
+       .AllowAnyOrigin()  // або .WithOrigins("http://localhost:5174/", "http://localhost:5175/")
+       .AllowAnyHeader()  // або .AllowCredentials() або .WithHeaders("...","...")
+       .AllowAnyMethod()  // або .WithMethods("PUT", "...")
 ));
 
 var app = builder.Build();
@@ -78,8 +81,7 @@ app.MapControllerRoute(
 
 app.Run();
 
-/* Д.З. Створити сторінку для обчислення DK *Derived Key*
- * Користувач вводить сіль та пароль, натискає кнопку "обчислити"
- * і одержує результат.
- * ** Додати режим автоматичної герерації солі
+/* Д.З. Створити декілька іменованих політик CORS
+ * Реалізувати підключення однієї з них у відповідності
+ * до налаштувань.
  */

@@ -23,6 +23,14 @@ namespace AspKnP231.Controllers
             _dataContext = dataContext;
         }
 
+
+
+        public IActionResult Cors()
+        {
+            return View();
+        }
+
+
         public IActionResult Forms()
         {
             HomeFormsViewModel viewModel = new();
