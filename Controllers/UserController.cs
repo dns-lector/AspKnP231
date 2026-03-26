@@ -21,6 +21,15 @@ namespace AspKnP231.Controllers
 
         public IActionResult Index()
         {
+            ViewData["JwtModel"] = new JwtModel
+            {
+                Payload = new()
+                {
+                    Name = "User",
+                    Email = "user@i.ua",
+                    Dob = "2020-02-02",
+                }
+            };
             return View();
         }
 
@@ -32,6 +41,45 @@ namespace AspKnP231.Controllers
                 return View();
             }
             return Redirect("/");
+        }
+
+        public JsonResult TestAuth()
+        {
+            String authHeader = Request.Headers.Authorization.ToString();
+            if (String.IsNullOrEmpty(authHeader))
+            {
+                return Json(new
+                {
+                    status = 401,
+                    data = "Missing 'Authorization' header"
+                });
+            }
+            String scheme = "Bearer ";
+            if (!authHeader.StartsWith(scheme))
+            {
+                return Json(new
+                {
+                    status = 401,
+                    data = "Invalid 'Authorization' scheme. Must be " + scheme
+                });
+            }
+            String token = authHeader[scheme.Length..];
+            // Валідація токена за https://datatracker.ietf.org/doc/html/rfc7519#section-7.2
+            int dotPosition = token.IndexOf('.');
+            if(dotPosition == -1)
+            {
+                return Json(new
+                {
+                    status = 401,
+                    data = "The JWT must contain at least one period ('.') character "
+                });
+            }
+            String header = token[..dotPosition];
+            return Json(new
+            {
+                status = 200,
+                data = header
+            });
         }
 
         public IActionResult SignUp()
@@ -141,7 +189,7 @@ namespace AspKnP231.Controllers
         }
 
         [HttpGet]
-        public JsonResult SignIn()
+        public JsonResult SignIn([FromRoute] String? id)   // id - з патерну у Program.cs
         {
             // Basic authentication
             String authHeader = Request.Headers.Authorization.ToString();
@@ -210,13 +258,40 @@ namespace AspKnP231.Controllers
                 });
             }
 
-            HttpContext.Session.SetString("UserAccess", JsonSerializer.Serialize(userAccess));
-
-            return Json(new
+            if(id == "jwt")
             {
-                status = 200,
-                data = "OK"
-            });
+                return Json(new
+                {
+                    status = 200,
+                    data = new JwtModel
+                    {
+                        Payload = new()
+                        {
+                            Name = userAccess.UserData.Name,
+                            Email = userAccess.UserData.Email,
+                            Aud = userAccess.UserRoleId == Guid.Parse("250FA2D3-0818-42D6-A1ED-112F115407D6")
+                                ? "Admin"
+                                : "Guest",
+                            Sub = userAccess.Login,
+                            Dob = userAccess.UserData.Birthdate.ToShortDateString(),
+                            Iat = DateTime.Now.Ticks,
+                            Ava = userAccess.AvatarFilename,
+                            Exp = DateTime.Now.AddMinutes(10).Ticks,
+                            Jti = userAccess.Id.ToString(),
+                        }
+                    }.ToString()
+                });
+            }
+            else
+            {
+                HttpContext.Session.SetString("UserAccess", JsonSerializer.Serialize(userAccess));
+                return Json(new
+                {
+                    status = 200,
+                    data = "OK"
+                });
+            }
+            
 
             /* Авторизація. Збереження результатів автентифікації.
              * За успішними результатами автентифікації у сесії зберігається
