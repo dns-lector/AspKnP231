@@ -342,7 +342,8 @@ namespace AspKnP231.Controllers
                             Sub = userAccess.Login,
                             Dob = userAccess.UserData.Birthdate.ToShortDateString(),
                             Iat = DateTime.Now.Ticks,
-                            Ava = _storageService.GetPathPrefix() + userAccess.AvatarFilename,
+                            Ava = userAccess.AvatarFilename == null ? null :
+                                    _storageService.GetPathPrefix() + userAccess.AvatarFilename,
                             Exp = DateTime.Now.AddMinutes(10).Ticks,
                             Jti = userAccess.Id.ToString(),
                         }
