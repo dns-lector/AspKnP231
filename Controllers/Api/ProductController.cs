@@ -1,6 +1,8 @@
 ﻿using AspKnP231.Data;
 using AspKnP231.Data.Entities;
 using AspKnP231.Middleware.Auth.Token;
+using AspKnP231.Models.Api;
+using AspKnP231.Services.Storage;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -9,12 +11,13 @@ namespace AspKnP231.Controllers.Api
 {
     [Route("api/product")]
     [ApiController]
-    public class ProductController(DataContext dataContext) : ControllerBase
+    public class ProductController(DataContext dataContext, IStorageService storageService) : ControllerBase
     {
         private readonly DataContext _dataContext = dataContext;
+        private readonly IStorageService _storageService = storageService;
 
         [HttpGet("{id}")]
-        public Object GetProduct(String id)
+        public RestResponse GetProduct(String id)
         {
             String authMessage;
             if(HttpContext.User.Identity?.IsAuthenticated ?? false)
@@ -25,14 +28,31 @@ namespace AspKnP231.Controllers.Api
             {
                 authMessage = HttpContext.Items[nameof(AuthTokenMiddleware)]?.ToString() ?? string.Empty;
             }
-
-            return new
+            var product = _dataContext.ShopProducts.FirstOrDefault(p => p.Slug == id || p.Id.ToString() == id);
+            return new()
             {
-                meta = new {
-                    id,
-                    authMessage
+                Meta = new() {
+                    ServerTime = DateTime.Now.Ticks,
+                    Cache = 3600,
+                    ResourceId = id,
+                    AuthStatus = authMessage,
+                    DataType = product == null ? "null" : "object"
                 },
-                data = _dataContext.ShopProducts.FirstOrDefault(p => p.Slug == id || p.Id.ToString() == id),
+                Data = product == null ? null : new ShopProductPage
+                {
+                    Product = new()
+                    {
+                        Id = product.Id.ToString(),
+                        Title = product.Title,
+                        Price = product.Price,
+                        Stock = product.Stock,
+                        Slug = product.Slug,
+                        ImageUrl = _storageService.GetPathPrefix() + (product.ImageUrl ?? "no_image.webp"),
+                        Rating = null,
+                        Discount = 0,
+                    },
+                    Recommended = []
+                },
             };
         }
     }
@@ -43,8 +63,8 @@ Uniform interface (уніфікований формат відповідей А
     meta: {
         time: 1260123562,
         cache: 3600,
+        dataType: "object",   // "array"   // null
         id: "123",
-        dataType: "object"   // "array"   // null
     },
     data: {
     }
