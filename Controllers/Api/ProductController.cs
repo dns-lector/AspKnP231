@@ -51,7 +51,22 @@ namespace AspKnP231.Controllers.Api
                         Rating = null,
                         Discount = 0,
                     },
-                    Recommended = []
+                    Recommended = [.._dataContext
+                        .ShopProducts
+                        .Where(p => p.Id != product.Id)
+                        .OrderBy(_ => Guid.NewGuid())
+                        .Take(3)
+                        .Select(p => new ShopProductModel{
+                            Id = p.Id.ToString(),
+                            Title = p.Title,
+                            Price = p.Price,
+                            Stock = p.Stock,
+                            Slug = p.Slug,
+                            ImageUrl = _storageService.GetPathPrefix() + (p.ImageUrl ?? "no_image.webp"),
+                            Rating = null,
+                            Discount = 0,
+                        })
+                    ]   // Три випадкові товари окрім даного
                 },
             };
         }
@@ -65,14 +80,15 @@ Uniform interface (уніфікований формат відповідей А
         cache: 3600,
         dataType: "object",   // "array"   // null
         id: "123",
+        path: "/api/product",
+        service: "Asp-Shop API"
     },
     data: {
     }
 }
 
-Д.З. Реалізувати вихід з авторизованого стану фронтенда
-за умови одержання відповіді з помилкою по токену.
-Для спрощення перевірки можна встановити короткий 
-термін придатності токена та натискати кнопку поза
-цим часом.
+Д.З. Доповнити метадані REST інтерфейсу наступними полями:
+- шлях (частина URL), що була запитана (path: "/api/product")
+- назва сервісу (service: "Asp-Shop API")
+Додати скріншоти відповіді сервера (JSON)
  */
