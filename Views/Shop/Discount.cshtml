@@ -1,0 +1,15 @@
+﻿@model AspKnP231.Models.Shop.Admin.AdminDiscountViewModel
+@{
+    ViewData["Title"] = "Admin";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Адміністрування крамниці: акції та знижки</h1>
+</div>
+
+
+
+@foreach(var discount in Model.Discounts)
+{
+    <p>@discount.Title</p>
+}

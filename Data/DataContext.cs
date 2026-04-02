@@ -15,12 +15,25 @@ namespace AspKnP231.Data
 
         public DbSet<Entities.ShopProduct> ShopProducts { get; set; }
 
+        public DbSet<Entities.Discount>    Discounts    { get; set; }
+
+        public DbSet<Entities.DiscountDetail> DiscountDetails { get; set; }
+
 
         public DataContext(DbContextOptions options) : base(options) { }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Entities.DiscountDetail>()
+                .HasOne(d => d.Product)
+                .WithMany()
+                .HasForeignKey(d => d.ProductId);
+
+            modelBuilder.Entity<Entities.DiscountDetail>()
+               .HasOne(d => d.Discount)
+               .WithMany();
+
             // налаштування моделі БД: а) відношення між сутностями
 
             modelBuilder.Entity<Entities.UserAccess>()

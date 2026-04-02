@@ -119,7 +119,20 @@ namespace AspKnP231.Controllers
             return View();
         }
 
+        public IActionResult Discount()
+        {
+            if (HttpContext.User.Identity?.IsAuthenticated ?? false)
+            {
+                String role = HttpContext.User.Claims
+                    .FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value ?? String.Empty;
 
+                if (role == "Admin")
+                {
+                    return View();
+                }
+            }
+            return RedirectToAction(nameof(Index));
+        }
 
         public IActionResult ProductFormReceiver(ShopProductFormModel formModel)
         {
