@@ -7,9 +7,22 @@
     <h1 class="display-4">Адміністрування крамниці: акції та знижки</h1>
 </div>
 
+<form class="border m-3 p-3">
+    <input name="discount-title" /><br/>
+    <textarea name="discount-description"></textarea><br />
+    <label>Процент: <input type="number" step="0.01" name="discount-percent" /></label>
+    <label>
+        Акційна ціна: <input type="number" step="0.01" name="discount-price" />
+    </label><br />
+    <input type="datetime" name="discount-start" />
+    <input type="datetime" name="discount-finish" />
 
+    <button class="btn btn-primary" type="button" id="admin-discount-btn">Додати</button>
+</form>
 
 @foreach(var discount in Model.Discounts)
 {
     <p>@discount.Title</p>
 }
+
+<script src="~/js/admin.js"></script>

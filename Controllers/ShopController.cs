@@ -134,6 +134,12 @@ namespace AspKnP231.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpPost]
+        public JsonResult DiscountFormReceiver()
+        {
+            return Json("");
+        }
+
         public IActionResult ProductFormReceiver(ShopProductFormModel formModel)
         {
             if (formModel.Slug != null)
