@@ -7,22 +7,66 @@
     <h1 class="display-4">Адміністрування крамниці: акції та знижки</h1>
 </div>
 
-<form class="border m-3 p-3">
-    <input name="discount-title" /><br/>
-    <textarea name="discount-description"></textarea><br />
-    <label>Процент: <input type="number" step="0.01" name="discount-percent" /></label>
-    <label>
-        Акційна ціна: <input type="number" step="0.01" name="discount-price" />
-    </label><br />
-    <input type="datetime" name="discount-start" />
-    <input type="datetime" name="discount-finish" />
+<div class="row">
+    <div class="col">
 
-    <button class="btn btn-primary" type="button" id="admin-discount-btn">Додати</button>
-</form>
+        <form class="border m-3 p-3">
+            <input name="discount-title" /><br />
+            <textarea name="discount-description"></textarea><br />
+            <label>Процент: <input type="number" step="0.01" name="discount-percent" /></label>
+            <label>
+                Акційна ціна: <input type="number" step="0.01" name="discount-price" />
+            </label><br />
+            <input type="datetime-local" name="discount-start" />
+            <input type="datetime-local" name="discount-finish" />
 
-@foreach(var discount in Model.Discounts)
-{
-    <p>@discount.Title</p>
-}
+            <button class="btn btn-primary" type="button" id="admin-discount-btn">Додати</button>
+        </form>
 
+
+        @foreach (var discount in Model.Discounts)
+        {
+            @Html.DisplayFor(m => discount, "DiscountTemplate")
+        }
+    </div>
+
+    <div class="col">
+        <form>
+            <select name="discount-detail-discount-id">
+                @foreach (var discount in Model.Discounts)
+                {
+                    <option value="@discount.Id" title="@discount.Description">@discount.Title</option>
+                }
+            </select>
+            <select name="discount-detail-product-id">
+                @foreach (var product in Model.Products)
+                {
+                    <option value="@product.Id" title="@product.Description">@product.Title</option>
+                }
+            </select>
+            <label>Встановити ціну: <input name="discount-detail-price" /></label>
+            <button type="button" id="discount-detail-btn">Додати</button>
+        </form>
+        @foreach(var dtl in Model.DiscountDetails)
+        {
+            <p>@dtl.Product.Title -- @dtl.Discount.Title</p>
+        }
+    </div>
+</div>
+
+
+
+<hr/>
+<p>
+    Шаблони відображення - інструменти для розподілу розмітки, особливо для комплесних об'єктів.
+    Шаблони розміщуються у директоріях представлень у піддиректоріях DisplayTemplates. 
+    Назва шаблону, якщо це можлива, має відповідати назві класу, для якого вона призначена. 
+    Включення шаблону реалізує інструкція <code>&commat;Html.DisplayFor(m => discount)</code>
+</p>
+<p>
+    Д.З. Реалізувати шаблони відображення для деталей акцій (DiscountDetails) на сторінці адміністратора.
+    * Додати перевірку при прийомі деталей акції на те, що даних товар вже бере участь в активній 
+    акції (зокрема, і у тій що вибрана)
+    ** Вивести помилки валідації форм (за наявності) біля відповідних полів введення.
+</p>
 <script src="~/js/admin.js"></script>
