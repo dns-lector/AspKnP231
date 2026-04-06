@@ -19,12 +19,24 @@ namespace AspKnP231.Data
 
         public DbSet<Entities.DiscountDetail> DiscountDetails { get; set; }
 
+        public DbSet<Entities.Cart>           Carts           { get; set; }
+
+        public DbSet<Entities.CartItem>       CartItems       { get; set; }
+
 
         public DataContext(DbContextOptions options) : base(options) { }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Entities.UserData>()
+                .HasMany(u => u.Carts)
+                .WithOne();
+
+            modelBuilder.Entity<Entities.Cart>()
+                .HasMany(c => c.CartItems)
+                .WithOne();
+
             modelBuilder.Entity<Entities.DiscountDetail>()
                 .HasOne(d => d.Product)
                 .WithMany()
