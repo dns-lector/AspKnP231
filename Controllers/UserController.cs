@@ -344,7 +344,7 @@ namespace AspKnP231.Controllers
                             Iat = DateTime.Now.Ticks,
                             Ava = userAccess.AvatarFilename == null ? null :
                                     _storageService.GetPathPrefix() + userAccess.AvatarFilename,
-                            Exp = DateTime.Now.AddMinutes(10).Ticks,
+                            Exp = DateTime.Now.AddMinutes(1000).Ticks,
                             Jti = userAccess.Id.ToString(),
                         }
                     }.ToString()

@@ -2,7 +2,7 @@
 
 namespace AspKnP231.Data.Entities
 {
-    public class CartItem
+    public record CartItem
     {
         public Guid Id { get; set; }
 
