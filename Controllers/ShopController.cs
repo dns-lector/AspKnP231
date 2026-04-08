@@ -1,4 +1,5 @@
 ﻿using AspKnP231.Data;
+using AspKnP231.Models.Shop;
 using AspKnP231.Models.Shop.Admin;
 using AspKnP231.Models.User;
 using AspKnP231.Services.Storage;
@@ -10,23 +11,57 @@ using System.Text.Json;
 
 namespace AspKnP231.Controllers
 {
-    public class ShopController(DataContext dataContext, IStorageService storageService) : Controller
+    public class ShopController(DataContext dataContext, IStorageService storageService, DataAccessor dataAccessor) : Controller
     {
         private readonly DataContext _dataContext = dataContext;
         private readonly IStorageService _storageService = storageService;
+        private readonly DataAccessor _dataAccessor = dataAccessor;
 
         public IActionResult Index()
         {
-            if(HttpContext.User.Identity?.IsAuthenticated ?? false)
+            ShopIndexViewModel viewModel = new()
+            {
+                ShopSections = [.. _dataAccessor.AllShopSections()],
+            };
+            return View(viewModel);
+        }
+
+        public IActionResult Section([FromRoute] String id)
+        {
+            ShopSectionViewModel viewModel = new()
+            {
+                ShopSection = _dataAccessor.GetShopSectionBySlug(id),
+                ShopSections = [.. _dataAccessor.AllShopSections()],
+            };
+            return View(viewModel);
+        }
+
+        public IActionResult Product([FromRoute] String id)
+        {
+            ShopProductViewModel viewModel = new()
+            {
+                ShopProduct = _dataAccessor.GetShopProductBySlug(id),
+                ShopSections = [.. _dataAccessor.AllShopSections()],
+            };
+            return View(viewModel);
+        }
+        /* Д.З. Завершити роботу з сторінкою товару:
+         * Включити до моделі перелік промо-товарів, забезпечити
+         * їх показ на сторінці
+         */
+
+        public IActionResult Admin()
+        {
+            if (HttpContext.User.Identity?.IsAuthenticated ?? false)
             {
                 String role = HttpContext.User.Claims
                     .FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value ?? String.Empty;
-                
-                if(role == "Admin")
+
+                if (role == "Admin")
                 {
                     ShopAdminViewModel viewModel = new()
                     {
-                        ShopSections = [.._dataContext.ShopSections.AsNoTracking()],
+                        ShopSections = [.. _dataContext.ShopSections.AsNoTracking()],
                     };
 
                     if (HttpContext.Session.Keys.Contains(nameof(ShopSectionFormModel)))
@@ -116,7 +151,7 @@ namespace AspKnP231.Controllers
                     return View("Admin", viewModel);
                 }
             }
-            return View();
+            return RedirectToAction(nameof(Index));
         }
 
         public IActionResult Discount()
@@ -130,9 +165,9 @@ namespace AspKnP231.Controllers
                 {
                     return View(new AdminDiscountViewModel
                     {
-                        Discounts = [.._dataContext.Discounts],
-                        Products = [.._dataContext.ShopProducts.Where(p => p.DeletedAt == null)],
-                        DiscountDetails = [.._dataContext.DiscountDetails.Include(d => d.Product).Include(d => d.Discount)]
+                        Discounts = [.. _dataContext.Discounts],
+                        Products = [.. _dataContext.ShopProducts.Where(p => p.DeletedAt == null)],
+                        DiscountDetails = [.. _dataContext.DiscountDetails.Include(d => d.Product).Include(d => d.Discount)]
                     });
                 }
             }
@@ -160,7 +195,7 @@ namespace AspKnP231.Controllers
             else
             {
                 return Json(ModelState);
-            }                
+            }
         }
 
         [HttpPost]
@@ -187,7 +222,7 @@ namespace AspKnP231.Controllers
             else
             {
                 return Json(ModelState);
-            }                
+            }
         }
 
         public IActionResult ProductFormReceiver(ShopProductFormModel formModel)

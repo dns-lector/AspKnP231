@@ -1,0 +1,25 @@
+﻿@model AspKnP231.Models.Shop.ShopSectionViewModel
+
+<div class="row">
+    <div class="col col-2 border-end">
+        @foreach(var shopSection in Model.ShopSections)
+        {
+            <p>@shopSection.Title</p>
+        }
+    </div>
+    <div class="col col-10">
+        <div class="text-center">
+            <h1 class="display-4">@(Model.ShopSection == null ? "Розділ не знайдено" : Model.ShopSection.Title)</h1>
+        </div>
+        @if (Model.ShopSection != null)
+        {
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5   g-4">
+                @foreach (var product in Model.ShopSection.Products)
+                {
+                    @Html.DisplayFor(m => product)
+                }
+            </div>
+        }
+    </div>
+</div>
+

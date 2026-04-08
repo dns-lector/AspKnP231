@@ -35,6 +35,8 @@ builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("MainDb")));
 
+builder.Services.AddScoped<DataAccessor>();
+
 
 builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy =>

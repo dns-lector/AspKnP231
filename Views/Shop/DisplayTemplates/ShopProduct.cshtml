@@ -1,0 +1,17 @@
+﻿@model AspKnP231.Data.Entities.ShopProduct
+
+<div class="col">
+    <div class="card h-100">
+        <a class="nav-link h-100" href="/Shop/Product/@(Model.Slug ?? Model.Id.ToString())">
+            <img src="/Storage/Item/@(Model.ImageUrl)" class="card-img-top" alt="@Model.Title">
+            <div class="card-body">
+                <h5 class="card-title">@Model.Title</h5>
+                <p class="card-text">@Model.Description</p>
+            </div>
+        </a>
+        <div class="card-footer d-flex justify-content-between align-items-center">
+            <b>₴ @Model.Price</b>
+            <button class="btn btn-outline-success"><i class="bi bi-cart2"></i></button>
+        </div>
+    </div>
+</div>
