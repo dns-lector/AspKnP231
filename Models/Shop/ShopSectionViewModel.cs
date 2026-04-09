@@ -7,5 +7,6 @@ namespace AspKnP231.Models.Shop
         public ShopSection? ShopSection { get; set; }
 
         public ShopSection[] ShopSections { get; set; } = [];
+
     }
 }

@@ -28,7 +28,8 @@ builder.Services.AddSession(options =>                 // https://learn.microsof
     options.IdleTimeout = TimeSpan.FromMinutes(10);    // 
     options.Cookie.HttpOnly = true;                    // 
     options.Cookie.IsEssential = true;                 // 
-});                                                    // 
+    options.Cookie.Name = "AspKnP231";
+});                                                   
 
 // Контекст даних (EF) реєструється як окремий сервіс зі своїми особливостями
 builder.Services.AddDbContext<DataContext>(options =>

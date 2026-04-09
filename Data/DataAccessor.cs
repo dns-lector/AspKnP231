@@ -8,12 +8,42 @@ namespace AspKnP231.Data
     {
         private readonly DataContext _dataContext = dataContext;
 
+        public Cart GetOrCreateActiveCart(Guid userId)
+        {
+            Cart? cart = GetActiveCart(userId);
+            // якщо кошику немає - створюємо новий
+            if (cart == null)
+            {
+                cart = new Cart()
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = userId,
+                    CreateDt = DateTime.Now,
+                };
+                _dataContext.Carts.Add(cart);
+            }
+            return cart;
+        }
+
+        public Cart? GetActiveCart(Guid userId)
+        {
+            return _dataContext
+                .Carts
+                .Include(c => c.CartItems)
+                    .ThenInclude(ci => ci.Product)
+                .FirstOrDefault(c =>
+                    c.UserId == userId && 
+                    c.DeleteDt == null && 
+                    c.OrderDt == null);
+        }
+
         public IEnumerable<ShopSection> AllShopSections()
         {
             return _dataContext
                 .ShopSections
                 .AsNoTracking()
                 .Where(s => s.DeletedAt == null)
+                .OrderBy(s => s.OrderInPrice)
                 .AsEnumerable();
         }
         public ShopSection? GetShopSectionBySlug(String slug)

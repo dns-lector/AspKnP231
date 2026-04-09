@@ -1,4 +1,10 @@
-﻿@model AspKnP231.Models.Shop.ShopSectionViewModel
+﻿@using AspKnP231.Data.Entities
+@model AspKnP231.Models.Shop.ShopSectionViewModel
+
+@if(ViewData["ActiveCart"] is Cart cart) {
+    <b>@cart.Price</b>
+}
+
 
 <div class="row">
     <div class="col col-2 border-end">

@@ -17,6 +17,9 @@
 
         public DateTime? DeletedAt   { get; set; }
 
+        // додано 2026-04-09
+        public int OrderInPrice { get; set; } = 10000;
+
 
         public ICollection<ShopProduct> Products { get; set; } = [];
 

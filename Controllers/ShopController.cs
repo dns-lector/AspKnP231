@@ -1,4 +1,5 @@
 ﻿using AspKnP231.Data;
+using AspKnP231.Data.Entities;
 using AspKnP231.Models.Shop;
 using AspKnP231.Models.Shop.Admin;
 using AspKnP231.Models.User;
@@ -33,6 +34,17 @@ namespace AspKnP231.Controllers
                 ShopSection = _dataAccessor.GetShopSectionBySlug(id),
                 ShopSections = [.. _dataAccessor.AllShopSections()],
             };
+            // TODO: Перенести до Middleware
+            if (HttpContext.User.Identity?.IsAuthenticated ?? false)
+            {
+                String userLogin = HttpContext.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                UserAccess? userAccess = _dataContext.UserAccesses.FirstOrDefault(a => a.Login == userLogin);
+                if (userAccess != null)
+                {
+                    ViewData["ActiveCart"] = _dataAccessor.GetActiveCart(userAccess.UserId);
+                }
+            }
+            
             return View(viewModel);
         }
 

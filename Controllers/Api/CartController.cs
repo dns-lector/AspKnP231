@@ -13,9 +13,10 @@ namespace AspKnP231.Controllers.Api
 {
     [Route("api/cart")]
     [ApiController]
-    public class CartController(DataContext dataContext, IStorageService storageService) : ControllerBase
+    public class CartController(DataContext dataContext, DataAccessor dataAccessor, IStorageService storageService) : ControllerBase
     {
         private readonly DataContext _dataContext = dataContext;
+        private readonly DataAccessor _dataAccessor = dataAccessor;
         private readonly IStorageService _storageService = storageService;
 
         private RestResponse restResponse = new();
@@ -39,6 +40,72 @@ namespace AspKnP231.Controllers.Api
             }
             return userAccess;
         }
+
+        [HttpPost("{id}")]
+        public RestResponse AddProductToCart([FromRoute] String id)
+        {
+            if (CheckAuth() is UserAccess userAccess)
+            {
+                Guid productId;
+                try { productId = Guid.Parse(id); }
+                catch { restResponse.Data = "productId must be valid UUID"; return restResponse; }
+                Cart cart = _dataAccessor.GetOrCreateActiveCart(userAccess.UserId);
+                // перевіряємо чи є вже такий товар у кошику
+                // якщо є, то збільшуємо кількість
+                // якщо немає, то створюємо новий елемент (Item)
+                CartItem? cartItem = cart.CartItems.FirstOrDefault(ci => ci.ProductId == productId);
+                if(cartItem == null)
+                {
+                    cartItem = new()
+                    {
+                        Id = Guid.NewGuid(),
+                        CartId = cart.Id,
+                        ProductId = productId,
+                        Quantity = 1,
+                    };
+                    // cart.CartItems.Add(cartItem);
+                    _dataContext.CartItems.Add(cartItem);
+                    _dataContext.SaveChanges();
+                }
+                else
+                {
+                    cartItem.Quantity += 1;
+                }
+                // перераховуємо вартості
+                CalcCartPrice(cart);
+                restResponse.Data = cart;
+            }
+            return restResponse;
+        }
+
+        private void CalcCartPrice(Cart cart)
+        {
+            decimal price = 0;
+            foreach (var item in cart.CartItems)
+            {
+                if(item.DiscountId == null)
+                {
+                    ShopProduct product = item.Product ??
+                        _dataAccessor.GetShopProductBySlug(item.ProductId.ToString())!;
+                    item.Price = product.Price * item.Quantity;
+                }
+                else
+                {
+                    throw new NotImplementedException("CalcCartPrice: product discounts");
+                }
+                price += item.Price;
+            }
+            if(cart.DiscountId == null)
+            {
+                cart.Price = price;
+            }
+            else
+            {
+                throw new NotImplementedException("CalcCartPrice: cart discounts");
+            }
+            _dataContext.SaveChanges();
+        }
+
 
         [HttpGet("{id}")]
         public RestResponse LoadOrderDetails([FromRoute] String id) 
@@ -101,19 +168,7 @@ namespace AspKnP231.Controllers.Api
 
             // У користувача може бути тільки один активний кошик --
             //  інформацію про нього беремо з авторизації
-            Cart? cart = _dataContext.Carts.FirstOrDefault(c => 
-                c.UserId == userAccess.UserId && c.DeleteDt == null && c.OrderDt == null);
-            // якщо кошику немає - створюємо новий
-            if (cart == null)
-            {
-                cart = new Cart() 
-                { 
-                    Id = Guid.NewGuid(),
-                    UserId = userAccess.UserId ,
-                    CreateDt = DateTime.Now,
-                };
-                _dataContext.Carts.Add(cart);
-            }
+            Cart cart = _dataAccessor.GetOrCreateActiveCart(userAccess.UserId);
             // Проходимо по переданим деталям та додаємо їх до БД
             foreach(var cartItem in formModel.CartItems)
             {

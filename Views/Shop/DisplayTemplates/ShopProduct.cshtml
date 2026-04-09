@@ -1,4 +1,5 @@
-﻿@model AspKnP231.Data.Entities.ShopProduct
+﻿@using AspKnP231.Data.Entities
+@model AspKnP231.Data.Entities.ShopProduct
 
 <div class="col">
     <div class="card h-100">
@@ -11,7 +12,16 @@
         </a>
         <div class="card-footer d-flex justify-content-between align-items-center">
             <b>₴ @Model.Price</b>
-            <button class="btn btn-outline-success"><i class="bi bi-cart2"></i></button>
+
+            @if (ViewData["ActiveCart"] is Cart cart && cart.CartItems.Any(ci => ci.ProductId == Model.Id))
+            {
+                <a href="/Shop/Cart" class="btn btn-success"><i class="bi bi-cart-check"></i></a>
+            }
+            else
+            {
+                <button class="btn btn-outline-success" data-add-to-cart="@Model.Id"><i class="bi bi-cart2"></i></button>
+            }
+            
         </div>
     </div>
 </div>

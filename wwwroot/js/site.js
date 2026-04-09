@@ -68,6 +68,42 @@ document.addEventListener('submit', e => {
         });
     }
 });
+
+function addToCartClick(e) {
+    const btn = e.target.closest("[data-add-to-cart]");
+    if (!btn) {
+        throw "addToCartClick: [data-add-to-cart] not found";
+    }
+    const productId = btn.getAttribute("data-add-to-cart");
+    if (!productId) {
+        throw "addToCartClick: [data-add-to-cart] value is empty";
+    }
+    console.log(productId);
+    fetch("/api/cart/" + productId, {
+        method: 'POST'
+    })
+        .then(r => r.json())
+        .then(j => {
+            console.log(j);
+            if (typeof j.data == 'object') {
+                window.location.reload();
+            }
+        });
+/*
+Д.З. Модифікувати роботу кнопки "До кошику":
+за умови відсутності автентифікації видавати
+повідомлення на кшталт "Для створення замовлення необхідно увійти до системи"
+і не формувати запит до бекенду
+*/
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    for (let btn of document.querySelectorAll("[data-add-to-cart]")) {
+        btn.addEventListener('click', addToCartClick);
+    }
+});
+
+
 /*
 Д.З. Реалізувати відображення помилок (повідомлень) автентифікації
 у складі модального вікна
