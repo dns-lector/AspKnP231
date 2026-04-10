@@ -69,6 +69,74 @@ document.addEventListener('submit', e => {
     }
 });
 
+function getFuncName() {
+    return getFuncName.caller.name
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    for (let btn of document.querySelectorAll("[data-add-to-cart]")) {
+        btn.addEventListener('click', addToCartClick);
+    }
+    for (let btn of document.querySelectorAll("[data-inc-cart-itemid]")) {
+        btn.addEventListener('click', incCartItemClick);
+    }
+    for (let btn of document.querySelectorAll("[data-delete-cart-itemid]")) {
+        btn.addEventListener('click', deleteCartItemClick);
+    }
+});
+
+function deleteCartItemClick(e) {
+    if (!confirm("Підтверджуєте видалення товару з кошику?")) {
+        return;
+    }
+    const attr = "data-delete-cart-itemid";
+    const btn = e.target.closest(`[${attr}]`);
+    if (!btn) {
+        throw `${getFuncName()}: [${attr}] not found`;
+    }
+    const itemId = btn.getAttribute(attr);
+    if (!itemId) {
+        throw `${getFuncName()}: [${attr}] value is empty`;
+    }
+    console.log("delete", itemId);
+    fetch(`/api/cart/${itemId}`, {
+        method: 'DELETE'
+    })
+        .then(r => r.json())
+        .then(j => {
+            console.log(j);
+            if (typeof j.data == 'object') {
+                window.location.reload();
+            }
+        });
+}
+function incCartItemClick(e) {
+    const attr = "data-inc-cart-itemid";
+    const btn = e.target.closest(`[${attr}]`);
+    if (!btn) {
+        throw `${getFuncName()}: [${attr}] not found`;
+    }
+    const itemId = btn.getAttribute(attr);
+    if (!itemId) {
+        throw `${getFuncName()}: [${attr}] value is empty`;
+    }
+    const inc = btn.getAttribute("data-inc");
+    if (!inc) {
+        throw `${getFuncName()}: [data-inc] value is empty`;
+    }
+    console.log("dec", itemId);
+    fetch(`/api/cart/${itemId}?inc=${inc}`, {
+        method: 'PUT'
+    })
+        .then(r => r.json())
+        .then(j => {
+            console.log(j);
+            if (typeof j.data == 'object') {
+                window.location.reload();
+            }
+        });
+}
+
 function addToCartClick(e) {
     const btn = e.target.closest("[data-add-to-cart]");
     if (!btn) {
@@ -97,11 +165,6 @@ function addToCartClick(e) {
 */
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    for (let btn of document.querySelectorAll("[data-add-to-cart]")) {
-        btn.addEventListener('click', addToCartClick);
-    }
-});
 
 
 /*

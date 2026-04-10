@@ -41,6 +41,81 @@ namespace AspKnP231.Controllers.Api
             return userAccess;
         }
 
+        [HttpDelete("{id}")]
+        public RestResponse UpdateCartItem([FromRoute] String id)
+        {
+            if (CheckAuth() is UserAccess userAccess)
+            {
+                try
+                {
+                    Guid cartItemId;
+                    try { cartItemId = Guid.Parse(id); }
+                    catch { throw new Exception("cartItemId must be valid UUID"); }
+                    // перевіряємо, що даний cartItemId належить авторизованому користувачу
+                    Cart cart = _dataAccessor.GetActiveCart(userAccess.UserId)
+                        ?? throw new Exception("User has no active cart");
+                    CartItem cartItem = cart.CartItems.FirstOrDefault(c => c.Id == cartItemId)
+                        ?? throw new Exception("cartItemId belongs no to authorized user");
+                    cart.CartItems.Remove(cartItem);
+                    CalcCartPrice(cart);
+                    restResponse.Data = cart;
+                }
+                catch (Exception ex)
+                {
+                    restResponse.Data = ex.Message;
+                }
+            }
+            return restResponse;
+        }
+
+
+        [HttpPut("{id}")]
+        public RestResponse UpdateCartItem([FromRoute] String id, int inc)
+        {
+            if (CheckAuth() is UserAccess userAccess)
+            {
+                try
+                {
+                    if (inc == 0)
+                    {
+                        throw new Exception("Parameter 'inc' could not be empty");
+                    }
+                    Guid cartItemId;
+                    try { cartItemId = Guid.Parse(id); }
+                    catch { throw new Exception("cartItemId must be valid UUID"); }
+                    // перевіряємо, що даний cartItemId належить авторизованому користувачу
+                    Cart cart = _dataAccessor.GetActiveCart(userAccess.UserId)
+                        ?? throw new Exception("User has no active cart");
+                    CartItem cartItem = cart.CartItems.FirstOrDefault(c => c.Id == cartItemId)
+                        ?? throw new Exception("cartItemId belongs no to authorized user");
+                    // перевіряємо застосовність інкременту: підсумкова кількість
+                    // замовлення не повинна бути 0 чи менша (видалення - окрема точка)
+                    // а також не перевищувати наявну кількість товару (Stock)
+                    int newQuantity = cartItem.Quantity + inc;
+                    if(newQuantity < 0)
+                    {
+                        throw new Exception("Update fails: negative result obtains");
+                    }
+                    if (newQuantity == 0)
+                    {
+                        throw new Exception("Update fails: zero result obtains - Delete is separate endpoint");
+                    }
+                    if (newQuantity > cartItem.Product.Stock)
+                    {
+                        throw new Exception($"Update fails: stock limit is {cartItem.Product.Stock}");
+                    }
+                    cartItem.Quantity = newQuantity;
+                    CalcCartPrice(cart);
+                    restResponse.Data = cart;
+                }
+                catch (Exception ex)
+                {
+                    restResponse.Data = ex.Message;
+                }
+            }
+            return restResponse;
+        }
+
         [HttpPost("{id}")]
         public RestResponse AddProductToCart([FromRoute] String id)
         {

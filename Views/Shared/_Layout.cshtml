@@ -10,6 +10,16 @@
     String? userName = isAuthorized
         ? Context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value
         : null;
+
+    String cartQuantity = "0", cartPrice = "0";
+    if (Context.Items.TryGetValue("ActiveCart", out var cart))
+    {
+        if(cart is Cart _cart)
+        {
+            cartQuantity = _cart.CartItems.Sum(ci => ci.Quantity).ToString();
+            cartPrice = _cart.Price.ToString();
+        }
+    }
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -72,6 +82,13 @@
                     @if (isAuthorized)
                     {
                         <div>
+                            <a asp-controller="Shop" asp-action="Cart"
+                               title="Ваш кошик: @(cartQuantity) товарів на @(cartPrice) грн"
+                               class="btn btn-outline-secondary cart-widget">
+                                <i class="bi bi-cart2"></i>
+                                <span>@(cartQuantity)</span>
+                            </a>
+
                             <a asp-controller="User" asp-action="Profile"
                                title="Кабінет користувача"
                                class="btn btn-outline-secondary">

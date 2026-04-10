@@ -8,6 +8,9 @@ namespace AspKnP231.Data
     {
         private readonly DataContext _dataContext = dataContext;
 
+        public UserAccess? GetUserAccessByLogin(String login) =>
+            _dataContext.UserAccesses.FirstOrDefault(a => a.Login == login);
+
         public Cart GetOrCreateActiveCart(Guid userId)
         {
             Cart? cart = GetActiveCart(userId);

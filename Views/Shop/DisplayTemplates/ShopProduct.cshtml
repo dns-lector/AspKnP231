@@ -13,7 +13,7 @@
         <div class="card-footer d-flex justify-content-between align-items-center">
             <b>₴ @Model.Price</b>
 
-            @if (ViewData["ActiveCart"] is Cart cart && cart.CartItems.Any(ci => ci.ProductId == Model.Id))
+            @if (Context.Items["ActiveCart"] is Cart cart && cart.CartItems.Any(ci => ci.ProductId == Model.Id))
             {
                 <a href="/Shop/Cart" class="btn btn-success"><i class="bi bi-cart-check"></i></a>
             }

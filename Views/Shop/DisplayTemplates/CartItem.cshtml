@@ -1,0 +1,27 @@
+﻿@model AspKnP231.Data.Entities.CartItem
+
+<div class="row border m-3 p-3">
+    <div class="col col-1">
+        <img src="/Storage/Item/@(Model.Product.ImageUrl ?? "no_image.webp")" 
+             alt="@(Model.Product.Title)" class="w-100" />       
+    </div>
+    <div class="col">
+        <h3>@(Model.Product.Title)</h3>
+        <p>@(Model.Product.Description)</p>
+    </div>
+    <div class="col col-2">
+        @*TODO: деактивувати кнопку "-" за умови, що кількість товару = 1*@
+        <button class="btn btn-outline-secondary" data-inc="-1" data-inc-cart-itemid="@Model.Id">-</button>
+        @Model.Quantity
+        @*TODO: деактивувати кнопку "+" за умови, що кількість товару = Model.Product.Stock
+            Також у цій ситуації додати підказку до кнопки про причину деактивації
+        *@
+        <button class="btn btn-outline-secondary" data-inc="1" data-inc-cart-itemid="@Model.Id">+</button>
+    </div>
+    <div class="col col-1">
+        @(Model.Price)
+    </div>
+    <div class="col col-1">
+        <button class="btn btn-outline-danger" data-delete-cart-itemid="@Model.Id"><i class="bi bi-trash3"></i></button>
+    </div>
+</div>

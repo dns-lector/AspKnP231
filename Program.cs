@@ -7,6 +7,7 @@ using AspKnP231.Data;
 using Microsoft.EntityFrameworkCore;
 using AspKnP231.Middleware.Auth.Session;
 using AspKnP231.Middleware.Auth.Token;
+using AspKnP231.Middleware.Cart;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,7 +79,7 @@ app.UseSession();       // Включення сесій https://learn.microsoft
 app.UseDemo();
 app.UseAuthSession();
 app.UseAuthToken();
-
+app.UseCart();
 
 app.MapControllerRoute(
     name: "default",

@@ -27,6 +27,16 @@ namespace AspKnP231.Controllers
             return View(viewModel);
         }
 
+        public IActionResult Cart()
+        {
+            ShopCartViewModel viewModel = new();
+            if (HttpContext.Items.TryGetValue("ActiveCart", out var _cart) && _cart is Cart cart)
+            {
+                viewModel.ActiveCart = cart;
+            }
+            return View(viewModel);
+        }
+
         public IActionResult Section([FromRoute] String id)
         {
             ShopSectionViewModel viewModel = new()
@@ -34,16 +44,6 @@ namespace AspKnP231.Controllers
                 ShopSection = _dataAccessor.GetShopSectionBySlug(id),
                 ShopSections = [.. _dataAccessor.AllShopSections()],
             };
-            // TODO: Перенести до Middleware
-            if (HttpContext.User.Identity?.IsAuthenticated ?? false)
-            {
-                String userLogin = HttpContext.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
-                UserAccess? userAccess = _dataContext.UserAccesses.FirstOrDefault(a => a.Login == userLogin);
-                if (userAccess != null)
-                {
-                    ViewData["ActiveCart"] = _dataAccessor.GetActiveCart(userAccess.UserId);
-                }
-            }
             
             return View(viewModel);
         }
@@ -57,9 +57,9 @@ namespace AspKnP231.Controllers
             };
             return View(viewModel);
         }
-        /* Д.З. Завершити роботу з сторінкою товару:
-         * Включити до моделі перелік промо-товарів, забезпечити
-         * їх показ на сторінці
+        /* Д.З. Завершити роботу з проєктом.
+         * Деталі завдань (TODO) роміщені у 
+         * кодах проєкту.
          */
 
         public IActionResult Admin()
